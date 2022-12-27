@@ -12,6 +12,10 @@ import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { collectionGroup, query, where, getDocs, updateDoc, arrayUnion, doc, getFirestore, getDoc, increment } from "firebase/firestore";  
+import { answers } from './answers';
+import { wordlist } from './words';
+// const readline = require('readline');
+// const {EOL} = require('os')
 
 const firebaseConfig = {
   apiKey: "AIzaSyBXDy67j_4tfZfKwnDVJtcNmvoWAiyhO5Q",
@@ -27,6 +31,18 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 //const analytics = firebase.analytics();
+
+const getRandomWord = () => {
+  const line = Math.floor(Math.random()*2309);
+  return answers[line];
+}
+
+// const words = fs.readFileSync('../words.txt')
+// const wordlist = words.split(EOL)
+
+const checkWord = (word) => {
+  return wordlist.includes(word)
+}
 
 function App() {
   const [user] = useAuthState(auth);
@@ -124,6 +140,7 @@ function Lobby() {
     <div>
     <header className="App-header">
       <h1>Lobby</h1>
+      <h1>{answers[0]}</h1>
       <SignOut />
     </header>
     <section>
@@ -198,7 +215,6 @@ function Writer({roomId}) {
   const [word, setWord] = useState(null)
   const [clue, setClue] = useState("")
   const [clues, setClues] = useState([])
-  const [valid, setValid] = useState(false)
   const [newClue, setNewClue] = useState(null)
   const roomsCollection = firestore.collection('rooms');
   const {uid} = auth.currentUser;
@@ -229,20 +245,16 @@ function Writer({roomId}) {
   useEffect(() => {
     getWord();
     if(!word) {
-      fetch("https://thatwordleapi.azurewebsites.net/get/")
-      .then(res => res.json())
-      .then(
-        (res) => {
-          console.log(res.Response)
-          setWord(res.Response);
-          console.log(word)
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-        }
-      )
+      // fetch("https://thatwordleapi.azurewebsites.net/get/")
+      // .then(res => res.json())
+      // .then(
+      //   (res) => {
+      //     console.log(res.Response)
+      //     setWord(res.Response);
+      //     console.log(word)
+      //   },
+      setWord(getRandomWord())
+      
     }
     UpdateWord();
     getClues();
@@ -257,21 +269,29 @@ function Writer({roomId}) {
     getClues();
     getWord();
     UpdateWord();
+    // console.log(clue+" not valid")
     if(!clue || clue.length != 5) {
       return;
     }
     // let valid;
     // let res;
     
-    fetch("https://thatwordleapi.azurewebsites.net/ask/?word="+clue).then(res => res.json()).then(
-      res=>{
-        setValid(res.Response)
-        console.log(res.Response)
-      }
-    )
-    
-    // console.log(valid)
-    if(!valid) {
+    // fetch("https://thatwordleapi.azurewebsites.net/ask/?word="+clue).then(res => res.json()).then(
+    //   res=>{
+    //     setValid(res.Response)
+    //     console.log(res.Response)
+    //   }
+    // )
+    let isValid = true;
+    if(!checkWord(clue)) {
+      console.log(clue+" not valid")
+      console.log(wordlist.includes(clue))
+      isValid = false;
+      setValid(false);
+    }
+    console.log(checkWord(clue))
+    console.log(wordlist.includes(clue))
+    if(!isValid) {
       return;
     }
     // add clue to room
@@ -358,8 +378,8 @@ function Guesser({roomId}) {
     console.log(clues)
   }
   const getPoints = async() => {
-    let roomref = roomsCollection.doc(params.id)
-    room = await getDoc(roomref)
+    let roomref = roomsCollection.doc(roomId)
+    let room = await getDoc(roomref)
     console.log(room.data())
     console.log(room.get("users")[uid])
     setPoints(room.get("users")[uid])
