@@ -244,7 +244,7 @@ function Writer({roomId}) {
     }
   useEffect(() => {
     getWord();
-    if(!word) {
+    if(!word || word.length != 5) {
       // fetch("https://thatwordleapi.azurewebsites.net/get/")
       // .then(res => res.json())
       // .then(
@@ -287,7 +287,7 @@ function Writer({roomId}) {
       console.log(clue+" not valid")
       console.log(wordlist.includes(clue))
       isValid = false;
-      setValid(false);
+      // setValid(false);
     }
     console.log(checkWord(clue))
     console.log(wordlist.includes(clue))
@@ -432,6 +432,19 @@ function Guesser({roomId}) {
       }).then(
         console.log("win")
       )
+      await roomsCollection.doc(roomId).update({
+        writer: uid
+      })
+      await roomsCollection.doc(roomId).update({
+        word: ""
+      })
+      await roomsCollection.doc(roomId).update({
+        clues: []
+      })
+      await roomsCollection.doc(roomId).update({
+        guesses: []
+      })
+      setClues([])
     }
     await updateDoc(roomsCollection.doc(roomId), {guesses: arrayUnion({giver: uid, guess: guess})})
   }
