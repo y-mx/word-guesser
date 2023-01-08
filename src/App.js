@@ -140,7 +140,6 @@ function Lobby() {
     <div>
     <header className="App-header">
       <h1>Lobby</h1>
-      <h1>{answers[0]}</h1>
       <SignOut />
     </header>
     <section>
@@ -199,9 +198,7 @@ function Game() {
     <>
     <header className="App-header">
       <h1>Game</h1>
-      <h2>{params.id}</h2>
-      <h2>{uid}</h2>
-      <h2>Writer: {writer? writer:"wait"}</h2>
+      <h2>WriterID: {writer? writer:"wait"}</h2>
       <h2>Points: {points}</h2>
     </header>
     <section>
@@ -245,14 +242,6 @@ function Writer({roomId}) {
   useEffect(() => {
     getWord();
     if(!word || word.length != 5) {
-      // fetch("https://thatwordleapi.azurewebsites.net/get/")
-      // .then(res => res.json())
-      // .then(
-      //   (res) => {
-      //     console.log(res.Response)
-      //     setWord(res.Response);
-      //     console.log(word)
-      //   },
       setWord(getRandomWord())
       
     }
@@ -269,19 +258,9 @@ function Writer({roomId}) {
     getClues();
     getWord();
     UpdateWord();
-    // console.log(clue+" not valid")
     if(!clue || clue.length != 5) {
       return;
     }
-    // let valid;
-    // let res;
-    
-    // fetch("https://thatwordleapi.azurewebsites.net/ask/?word="+clue).then(res => res.json()).then(
-    //   res=>{
-    //     setValid(res.Response)
-    //     console.log(res.Response)
-    //   }
-    // )
     let isValid = true;
     if(!checkWord(clue)) {
       console.log(clue+" not valid")
