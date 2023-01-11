@@ -132,8 +132,10 @@ p {
 
 .correct {
   background-color: #019a01;
+  color: #ffffff;
 }
 
 .wrong {
   background-color: darkred;
+  color: #ffffff;
 }
