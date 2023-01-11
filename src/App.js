@@ -96,6 +96,7 @@ function Lobby() {
   const { user } = useAuthState(auth);
   const { uid } = auth.currentUser;
   const [value, setValue] = React.useState("");
+  const [name, setName] = React.useState("");
   const [room, setRoom] = React.useState(null);
   const prefix = "/game/"
   const roomsCollection = firestore.collection('rooms');
@@ -103,9 +104,13 @@ function Lobby() {
     setValue(e.target.value)
     console.log(value)
   }
+  const onNameChange = async (e) => {
+    setName(e.target.value)
+    console.log(name)
+  }
   const createNewRoom = async () => {
     const docref = await roomsCollection.add({
-      users: [{user: uid, points: 0}],
+      users: [{user: uid, points: 0, username: name}],
       writer: uid,
       // word: null,
       guesses: [],
@@ -144,6 +149,15 @@ function Lobby() {
     </header>
     <section>
       <div>
+      <input
+        type="text"
+        name="username"
+        onChange={onNameChange}
+        placeholder="Display Name"
+        value={name}
+        />
+      </div>
+      <div>
         <button className = "create-room" onClick={createNewRoom}>Create a room</button>
         <br/>
       </div>
@@ -180,7 +194,7 @@ function Game() {
       room = await getDoc(roomref)
       console.log(room.data())
       console.log(room.get("writer"))
-      setWriter(room.get("writer"))
+      setWriter(room.get("users")[room.get("writer")].username)
     }
     const getPoints = async() => {
       let roomref = roomsCollection.doc(params.id)
@@ -345,6 +359,7 @@ function Guesser({roomId}) {
   const [guess, setGuess] = useState("");
   const [guesses, setGuesses] = useState([]);
   const [word, setWord] = useState("");
+  const [name, setName] = useState("");
   const [points, setPoints] = useState(0);
   const {uid} = auth.currentUser;
   const roomsCollection = firestore.collection('rooms');
@@ -360,8 +375,15 @@ function Guesser({roomId}) {
     let roomref = roomsCollection.doc(roomId)
     let room = await getDoc(roomref)
     console.log(room.data())
-    console.log(room.get("users")[uid])
-    setPoints(room.get("users")[uid])
+    console.log(room.get("users")[uid].points)
+    setPoints(room.get("users")[uid].points)
+  }
+  const getName = async() => {
+    let roomref = roomsCollection.doc(roomId)
+    let room = await getDoc(roomref)
+    console.log(room.data())
+    console.log(room.get("users")[uid].username)
+    setName(room.get("users")[uid].username)
   }
   const getGuesses = async() => {
     let roomref = roomsCollection.doc(roomId)
