@@ -86,6 +86,7 @@ function Lobby() {
   const { uid } = auth.currentUser;
   const [value, setValue] = React.useState("");
   const [name, setName] = React.useState("");
+  const [name, setName] = React.useState("");
   const [room, setRoom] = React.useState(null);
   const prefix = "/game/"
   const roomsCollection = firestore.collection('rooms');
@@ -97,9 +98,13 @@ function Lobby() {
     setName(e.target.value)
     console.log(name)
   }
+  const onNameChange = async (e) => {
+    setName(e.target.value)
+    console.log(name)
+  }
   const createNewRoom = async () => {
     const docref = await roomsCollection.add({
-      users: [{user: uid, points: 0, username: name}],
+      users: [{user: uid, points: 0, username: name, username: name}],
       writer: uid,
       // word: null,
       guesses: [],
@@ -133,6 +138,15 @@ function Lobby() {
       <SignOut />
     </header>
     <section>
+      <div>
+      <input
+        type="text"
+        name="username"
+        onChange={onNameChange}
+        placeholder="Display Name"
+        value={name}
+        />
+      </div>
       <div>
       <input
         type="text"
