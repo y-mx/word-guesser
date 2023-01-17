@@ -55,7 +55,8 @@ export function Game() {
       <header className="App-header">
         <h1>Game</h1>
         <h2>WriterID: {writer? writer:"wait"}</h2>
-        <h2>Username: {names? names:"wait"}</h2>
+        <h2>Current players:</h2>
+        {names? names.map(c => <p>{c}</p>): <h2>loading</h2>}
         <h2>Points: {points}</h2>
       </header>
       <section>

@@ -122,7 +122,7 @@ function Lobby() {
 
     }else {
       console.log("join");
-      await updateDoc(roomsCollection.doc(room.id), {users: arrayUnion({user: uid, points: 0})})
+      await updateDoc(roomsCollection.doc(room.id), {users: arrayUnion({user: uid, points: 0, username: name})})
       navigate("/game/"+room.id);
     }
   }
