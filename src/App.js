@@ -100,7 +100,7 @@ function Lobby() {
   const createNewRoom = async () => {
     const docref = await roomsCollection.add({
       users: [{user: uid, points: 0, username: name, username: name}],
-      writer: uid,
+      writer: {id: uid, name: name},
       // word: null,
       guesses: [],
       clues: [],

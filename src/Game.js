@@ -28,8 +28,8 @@ export function Game() {
         let roomref = roomsCollection.doc(params.id)
         room = await getDoc(roomref)
         console.log(room.data())
-        console.log(room.get("writer"))
-        setWriter(room.get("writer"))
+        console.log(room.get("writer").name)
+        setWriter(room.get("writer").name)
       }
       const getPoints = async() => {
         let roomref = roomsCollection.doc(params.id)
@@ -54,7 +54,7 @@ export function Game() {
       <>
       <header className="App-header">
         <h1>Game</h1>
-        <h2>WriterID: {writer? writer:"wait"}</h2>
+        <h2>Writer: {writer? writer:"wait"}</h2>
         <h2>Current players:</h2>
         {names? names.map(c => <p>{c}</p>): <h2>loading</h2>}
         <h2>Points: {points}</h2>
