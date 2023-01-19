@@ -9,6 +9,9 @@ import React, { useEffect, useState } from 'react';
 import { DisplayClue } from './Writer';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+
 export function Guesser({roomId}) {
   
   const auth = firebase.auth();
@@ -18,6 +21,7 @@ export function Guesser({roomId}) {
     const [guesses, setGuesses] = useState([]);
     const [word, setWord] = useState("");
     const [points, setPoints] = useState(0);
+    const [show, setShow] = useState(false);
     const {uid} = auth.currentUser;
     const roomsCollection = firestore.collection('rooms');
     const getClues = async() => {
@@ -81,7 +85,7 @@ export function Guesser({roomId}) {
             uid: increment(100)
           }
         }).then(
-          console.log("win")
+          handleShow()
         )
         await roomsCollection.doc(roomId).update({
           writer: uid
@@ -99,9 +103,22 @@ export function Guesser({roomId}) {
       }
       await updateDoc(roomsCollection.doc(roomId), {guesses: arrayUnion({giver: uid, guess: guess})})
     }
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
     return (
       <div className="guesser-container">
         <h1>Points: {points}</h1>
+        <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Round over</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>You win! Now you are the writer</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+        </Modal>
         {/* <p>Guesser</p> */}
         <div className='inline'>
           <section>
