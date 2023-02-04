@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 import firebase, { initializeApp } from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import 'firebase/compat/auth';
@@ -32,7 +32,35 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 
-
+/* rooms
+{
+  users: {
+    uid1: points,
+    uid2: points
+  }
+  names: {
+    uid1: name,
+    uid2: name
+  }
+  writer: {
+    id: uid,
+    name: name
+  }
+  guesses: [
+    {
+      guesser: uid,
+      word: word
+    }
+  ]
+  clues: {
+    {
+      giver: uid,
+      word: word
+    }
+  }
+  word: word
+}
+*/
 function App() {
   const [user] = useAuthState(auth);
   let inGame = false;
@@ -99,7 +127,8 @@ function Lobby() {
   }
   const createNewRoom = async () => {
     const docref = await roomsCollection.add({
-      users: [{user: uid, points: 0, username: name, username: name}],
+      users: [{id: uid, points: 0}],
+      names: [{id: uid, name: name}],
       writer: {id: uid, name: name},
       // word: null,
       guesses: [],
@@ -122,7 +151,8 @@ function Lobby() {
 
     }else {
       console.log("join");
-      await updateDoc(roomsCollection.doc(room.id), {users: arrayUnion({user: uid, points: 0, username: name})})
+      // await updateDoc(roomsCollection.doc(room.id), {users: arrayUnion({user: uid, points: 0, username: name})})
+      roomsCollection.doc(room.id).set({users: {uid:0}}, {merge:true});
       navigate("/game/"+room.id);
     }
   }

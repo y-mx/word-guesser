@@ -17,39 +17,40 @@ export function Game() {
     const { user } = useAuthState(auth);
     const {uid} = auth.currentUser;
     const params = useParams();
-    console.log("game");
+    // console.log("game");
     let room
     const roomsCollection = firestore.collection('rooms');
     const [writer, setWriter] = useState(null)
     const [points, setPoints] = useState(0)
     const [names, setNames] = useState([])
+    const [callback, setCallback] = useState(false);
+    const getWriter = async() => {
+      let roomref = roomsCollection.doc(params.id)
+      room = await getDoc(roomref)
+      console.log(room.data())
+      console.log(room.get("writer").name)
+      setWriter(room.get("writer").id)
+    }
+    const getPoints = async() => {
+      let roomref = roomsCollection.doc(params.id)
+      room = await getDoc(roomref)
+      console.log(room.data())
+      console.log(room.get("users")[uid])//.points)
+      setPoints(room.get("users")[uid].points)//.points)
+    }
+    const getName = async() => {
+      let roomref = roomsCollection.doc(params.id)
+      room = await getDoc(roomref)
+      console.log(room.data())
+      console.log(room.get("names"))//.username)
+      setNames(room.get("names").map(a => a.name))//.username)
+    }
     useEffect(() => {
-      const getWriter = async() => {
-        let roomref = roomsCollection.doc(params.id)
-        room = await getDoc(roomref)
-        console.log(room.data())
-        console.log(room.get("writer").name)
-        setWriter(room.get("writer").name)
-      }
-      const getPoints = async() => {
-        let roomref = roomsCollection.doc(params.id)
-        room = await getDoc(roomref)
-        console.log(room.data())
-        console.log(room.get("users")[uid])//.points)
-        setPoints(room.get("users")[uid])//.points)
-      }
-      const getName = async() => {
-        let roomref = roomsCollection.doc(params.id)
-        room = await getDoc(roomref)
-        console.log(room.data())
-        console.log(room.get("users"))//.username)
-        setNames(room.get("users").map(a => a.username))//.username)
-      }
       getWriter();
       getPoints();
       getName();
       console.log(writer)
-    })
+    },[callback])
     return (
       <>
       <header className="App-header">
@@ -57,10 +58,11 @@ export function Game() {
         <h2>Writer: {writer? writer:"wait"}</h2>
         <h2>Current players:</h2>
         {names? names.map(c => <p>{c}</p>): <h2>loading</h2>}
+        <h2>{uid}</h2>
         <h2>Points: {points}</h2>
       </header>
       <section>
-        { writer == uid? <Writer roomId={params.id}/> : <Guesser roomId={params.id}/>}
+        { (writer == uid)? <Writer roomId={params.id}/> : <Guesser roomId={params.id} callback={setCallback}/>}
       </section>
       </>
     )

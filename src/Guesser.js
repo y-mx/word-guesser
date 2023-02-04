@@ -12,7 +12,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
-export function Guesser({roomId}) {
+export function Guesser({roomId, callback}) {
   
   const auth = firebase.auth();
     const firestore = firebase.firestore();
@@ -37,7 +37,7 @@ export function Guesser({roomId}) {
       let room = await getDoc(roomref)
       console.log(room.data())
       console.log(room.get("users")[uid])
-      setPoints(room.get("users")[uid])
+      setPoints(room.get("users")[uid].points)
     }
     const getGuesses = async() => {
       let roomref = roomsCollection.doc(roomId)
@@ -46,7 +46,7 @@ export function Guesser({roomId}) {
       console.log(room.get("guesses"))
       setGuesses(room.get("guesses"))
       console.log(guesses)
-      guesses.map(g => console.log(g.guess))
+      // guesses.map(g => console.log(g.guess))
     }
     const getWord = async() => {
       let roomref = roomsCollection.doc(roomId)
@@ -80,18 +80,22 @@ export function Guesser({roomId}) {
         console.log("win");
         // points system: more than 6 clues = 0 points guesser + writer
         // 1 clue
-        await roomsCollection.doc(roomId).update({
-          users: {
-            uid: increment(100)
-          }
-        }).then(
+        let usersUpdate = `users.${uid}.points`
+
+        // updateDoc(roomsCollection.doc(roomId), {
+        //   "" : increment(100)
+        // })
+        roomsCollection.doc(roomId).update({
+          [`users.${uid}.points`]: increment(100)
+        }, {merge: true}).then(
           handleShow()
         )
-        await roomsCollection.doc(roomId).update({
-          writer: uid
-        })
+        
         await roomsCollection.doc(roomId).update({
           word: ""
+        })
+        await roomsCollection.doc(roomId).update({
+          writer: {id: uid, name: " "}
         })
         await roomsCollection.doc(roomId).update({
           clues: []
@@ -103,22 +107,31 @@ export function Guesser({roomId}) {
       }
       await updateDoc(roomsCollection.doc(roomId), {guesses: arrayUnion({giver: uid, guess: guess})})
     }
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+      setShow(false);
+      // rerender parent
+      callback(true);
+    }
     const handleShow = () => setShow(true);
     return (
       <div className="guesser-container">
-        <h1>Points: {points}</h1>
-        <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Round over</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>You win! Now you are the writer</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-        </Modal>
+        {/* <h1>Points: {points}</h1> */}
+        <div
+          className="modal show"
+          style={{ display: 'block', position: 'initial' }}>
+          <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Round over</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>You win! Now you are the writer</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+          </Modal.Footer>
+          </Modal>
+        </div>
+        
         {/* <p>Guesser</p> */}
         <div className='inline'>
           <section>
