@@ -104,8 +104,9 @@ export function Guesser({roomId, callback}) {
           guesses: []
         })
         setClues([])
+      } else {
+        await updateDoc(roomsCollection.doc(roomId), {guesses: arrayUnion({giver: uid, guess: guess})})
       }
-      await updateDoc(roomsCollection.doc(roomId), {guesses: arrayUnion({giver: uid, guess: guess})})
     }
     const handleClose = () => {
       setShow(false);
