@@ -34,14 +34,18 @@ const firestore = firebase.firestore();
 
 /* rooms
 {
-  users: {
-    uid1: points,
-    uid2: points
-  }
-  names: {
-    uid1: name,
-    uid2: name
-  }
+  users: [
+    {
+      uid: uid1,
+      points: 0
+    }
+  ]
+  names: [
+    {
+      uid: uid1,
+      name: name
+    }
+  ]
   writer: {
     id: uid,
     name: name
